@@ -2,11 +2,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: torchserve
+  namespace: torchserve
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - name: inference
+      port: 8080
       targetPort: 8080
+      protocol: TCP
+    - name: management
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+    - name: metrics 
+      port: 8082
+      targetPort: 8082
       protocol: TCP
   selector:
     app: torchserve

@@ -56,7 +56,12 @@ Below the avarage response time graphs.
 <img src=JMeter/results/local/SamLowe_roberta-base-go_emotions/GPU/Response%20Time%20Graph-60users.png>
 
 ## Kubernetes
-TODO
+{
+  "code": 503,
+  "type": "ServiceUnavailableException",
+  "message": "Model \"SamLowe_roberta-base-go_emotions\" has no worker to serve inference request. Please use scale workers API to add workers."
+}
+
 
 # Useful links
 * TorchServe configurations
@@ -72,6 +77,11 @@ cd source
 git clone https://huggingface.co/SamLowe/roberta-base-go_emotions
 
 git clone https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment
+
+git clone https://huggingface.co/facebook/detr-resnet-50
+
+git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
+
 ```
 ## 2. Prepare container image
 ```
@@ -105,7 +115,7 @@ cd docker
 # NOTE!!! In order to take the right latest patch of cuda base image, I had to edit build_image
 ./build_image.sh -t my_base_torchserve:1.0-gpu --gpu --cudaversion cu116
 
-docker build -t my_custom_torchserve:latest-gpu -f docker/Dockerfile --build-arg FROM_IMAGE=pytorch/my_base_torchserve:1.0 .
+docker build -t my_custom_torchserve:latest-gpu -f docker/Dockerfile --build-arg FROM_IMAGE=my_base_torchserve:1.0-gpu .
 
 ```
 
@@ -143,4 +153,17 @@ cd kubernetes
 
 # customize as you prefer the chart, than
 helm upgrade -i torchserve torchserve
+
+# install ndivia-device-plugin
+k create ns nvidia-device-plugin
+kubectl create cm -n nvidia-device-plugin nvidia-plugin-configs \
+    --from-file=config=dp-example-config0.yaml
+
+helm upgrade -i nvdp nvdp/nvidia-device-plugin \
+  --namespace nvidia-device-plugin \
+  --create-namespace \
+  --set config.name=nvidia-plugin-configs \
+  --version 0.14.1
+
+
 ```

@@ -6,9 +6,10 @@ metadata:
   namespace: torchserve
   labels:
     app: torchserve
+  annotations:
     prometheus/should_be_scraped: "true"
 spec:
-    replicas: 1
+    replicas: {{ .Values.replicaCount }}
     selector:
         matchLabels:
             app: torchserve
@@ -16,8 +17,11 @@ spec:
         metadata:
             labels:
                 app: torchserve
+            annotations:
                 prometheus/should_be_scraped: "true"
+                checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
         spec:
+            rolloutStrategy: Recreate
             containers:
               - name: torchserve
                 image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -34,6 +38,8 @@ spec:
                     - name: config-properties
                       mountPath: /home/model-server/config.properties
                       subPath: config.properties
+                resources:
+                  {{- toYaml .Values.resources | nindent 18 }}
             volumes:
             - name: config-properties
               configMap:

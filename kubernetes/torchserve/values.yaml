@@ -1,12 +1,17 @@
+replicaCount: 1
+
 service:
   type: LoadBalancer
-  port: 8080
 
 image:
   # repository: my_torchserver
-  repository: testaixxx.azurecr.io/my_torchserver
-  pullPolicy: IfNotPresent
+  repository: testaixxx.azurecr.io/my_custom_torchserve
   # Overrides the image tag whose default is the chart appVersion.
   # tag: latest-gpu
-  tag: latest
+  tag: latest-gpu
 
+resources: {}
+  # limits:
+  #   nvidia.com/gpu.shared: 1
+  # requests:
+  #   nvidia.com/gpu.shared: 1

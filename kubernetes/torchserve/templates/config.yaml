@@ -11,7 +11,7 @@ data:
                 "defaultVersion": true,\
                 "marName": "SamLowe_roberta-base-go_emotions.mar",\
                 "minWorkers": 1,\
-                "maxWorkers": 10,\
+                "maxWorkers": 1,\
                 "batchSize": 1,\
                 "maxBatchDelay": 100,\
                 "responseTimeout": 120\
@@ -22,8 +22,9 @@ data:
         inference_address=http://0.0.0.0:8080
         management_address=http://0.0.0.0:8081
         metrics_address=http://0.0.0.0:8082
-        load_models=all
-        number_of_gpu=1
+        # load_models=all
+        load_models=facebook_detr-resnet-50.mar
+        number_of_gpu=0
         enable_metrics_api=true
         disable_system_metrics=false
         metrics_mode=prometheus

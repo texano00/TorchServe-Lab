@@ -2,21 +2,61 @@ prometheus:
   serverFiles:
     prometheus.yml:
       scrape_configs:
-         - job_name: 'torchserve'
-           relabel_configs:
-            # Example relabel to scrape only pods that have
-            # "prometheus/should_be_scraped = true" annotation.
-              - source_labels: [__meta_kubernetes_pod_annotation_prometheus_should_be_scraped]
-                action: keep
-                regex: true
-              - source_labels: [__address__]
-                target_label: __param_target
-              - source_labels: [__param_target]
-                target_label: instance
-              - target_label: __address__
-                replacement: __meta_kubernetes_pod_annotation_prometheus_io_port:8082
-           static_configs:
-            - targets: ['localhost:8082'] #TorchServe metrics endpoint 
-         - job_name: 'prometheus'
-           static_configs:
-            - targets: ['localhost:9090']
+        - job_name: "kubernetes-apiservers"
+
+          kubernetes_sd_configs:
+            - role: endpoints
+
+          # Default to scraping over https. If required, just disable this or change to
+          # `http`.
+          scheme: https
+
+          # This TLS & authorization config is used to connect to the actual scrape
+          # endpoints for cluster components. This is separate to discovery auth
+          # configuration because discovery & scraping are two separate concerns in
+          # Prometheus. The discovery auth config is automatic if Prometheus runs inside
+          # the cluster. Otherwise, more config options have to be provided within the
+          # <kubernetes_sd_config>.
+          tls_config:
+            ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            # If your node certificates are self-signed or use a different CA to the
+            # master CA, then disable certificate verification below. Note that
+            # certificate verification is an integral part of a secure infrastructure
+            # so this should only be disabled in a controlled environment. You can
+            # disable certificate verification by uncommenting the line below.
+            #
+            # insecure_skip_verify: true
+          authorization:
+            credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+          # Keep only the default/kubernetes service endpoints for the https port. This
+          # will add targets for each API server which Kubernetes adds an endpoint to
+          # the default/kubernetes service.
+          relabel_configs:
+            - source_labels:
+                [
+                  __meta_kubernetes_namespace,
+                  __meta_kubernetes_service_name,
+                  __meta_kubernetes_endpoint_port_name,
+                ]
+              action: keep
+              regex: default;kubernetes;https
+
+        - job_name: 'torchserve'
+        #  relabel_configs:
+        #   # Example relabel to scrape only pods that have
+        #   # "prometheus/should_be_scraped = true" annotation.
+        #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_should_be_scraped]
+        #       action: keep
+        #       regex: true
+        #     - source_labels: [__address__]
+        #       target_label: __param_target
+        #     - source_labels: [__param_target]
+        #       target_label: instance
+        #     - target_label: __address__
+        #       replacement: __meta_kubernetes_pod_annotation_prometheus_io_port:8082
+          static_configs:
+          - targets: ['torchserve.torchserve:8082'] #TorchServe metrics endpoint 
+        - job_name: 'prometheus'
+          static_configs:
+          - targets: ['localhost:9090']

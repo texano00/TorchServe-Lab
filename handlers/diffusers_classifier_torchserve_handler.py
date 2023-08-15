@@ -4,9 +4,8 @@ import logging
 import os
 import subprocess
 import torch
-from transformers import pipeline
-from PIL import Image
-import io
+from diffusers import StableDiffusionPipeline
+
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -43,9 +42,9 @@ class TransformersClassifierHandler(BaseHandler, ABC):
             logger.info("Cuda is not available. Using CPU")
             device = -1
             
-        self.pipe = pipeline("object-detection", model=model_dir, device=device)
-
-        logger.debug('Transformer model from path {0} loaded successfully'.format(model_dir))
+        self.pipe = StableDiffusionPipeline.from_pretrained(model_dir, torch_dtype=torch.float16, device=device)
+        self.pipe = self.pipe.to("cuda")        
+        logger.debug('StableDiffusionPipeline model from path {0} loaded successfully'.format(model_dir))
 
         self.initialized = True
 
@@ -54,8 +53,9 @@ class TransformersClassifierHandler(BaseHandler, ABC):
             Extend with your own preprocessing steps as needed.
         """
         logger.info("Performing preprocessing")
-        # logger.info(data)
-        logger.info("Received image")
+        logger.info(data)
+        logger.info(data[0])
+        logger.info("Received text: '%s'", data[0]['body'])
 
         return data
 
@@ -68,10 +68,11 @@ class TransformersClassifierHandler(BaseHandler, ABC):
         # If your transformer model expects different tokenization, adapt this code to suit 
         # its expected input format.
         logger.info("Performing inference")
-        # logger.info(inputs)
-        image = Image.open(io.BytesIO(inputs[0]['body']))
-        prediction = self.pipe(image)
+        logger.info(inputs)
+        
+        prediction = self.pipe(inputs[0]['body'])
         logger.info("Model predicted: '%s'", prediction)
+        logger.info("Model predicted after")
 
         return prediction
 

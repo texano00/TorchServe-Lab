@@ -27,7 +27,7 @@ class TransformersClassifierHandler(BaseHandler, ABC):
 
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
         logger.info("Device: %s", self.device)
         print("model_dir: ", model_dir)
 
