@@ -10,9 +10,11 @@ USER model-server
 WORKDIR /home/model-server
 
 # Install python dependencies
-ADD requirements.txt requirements.txt
+ADD docker/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+# Include model files
+COPY ../model_store /home/model-server/model-store
 
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]

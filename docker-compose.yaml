@@ -5,15 +5,16 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
+      - "8082:8082"
     volumes:
-      - ./model_store:/home/model-server/model-store
+    #  - ./model_store:/home/model-server/model-store
       - ./config.properties:/home/model-server/config.properties
     environment:
       TS_CONFIG_FILE: "/home/model-server/config.properties"
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #       - driver: nvidia
-    #         device_ids: ['0']
-    #         capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu]

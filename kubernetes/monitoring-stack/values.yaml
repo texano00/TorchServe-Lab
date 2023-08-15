@@ -1,0 +1,22 @@
+prometheus:
+  serverFiles:
+    prometheus.yml:
+      scrape_configs:
+         - job_name: 'torchserve'
+           relabel_configs:
+            # Example relabel to scrape only pods that have
+            # "prometheus/should_be_scraped = true" annotation.
+              - source_labels: [__meta_kubernetes_pod_annotation_prometheus_should_be_scraped]
+                action: keep
+                regex: true
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: __meta_kubernetes_pod_annotation_prometheus_io_port:8082
+           static_configs:
+            - targets: ['localhost:8082'] #TorchServe metrics endpoint 
+         - job_name: 'prometheus'
+           static_configs:
+            - targets: ['localhost:9090']

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-properties
+  namespace: torchserve
+data:
+    config.properties: |
+        models={\
+        "SamLowe_roberta-base-go_emotions": {\
+            "1.0": {\
+                "defaultVersion": true,\
+                "marName": "SamLowe_roberta-base-go_emotions.mar",\
+                "minWorkers": 1,\
+                "maxWorkers": 10,\
+                "batchSize": 1,\
+                "maxBatchDelay": 100,\
+                "responseTimeout": 120\
+            }\
+        }\
+        }
+        model_store=/home/model-server/model-store
+        inference_address=http://0.0.0.0:8080
+        management_address=http://0.0.0.0:8081
+        metrics_address=http://0.0.0.0:8082
+        load_models=all
+        number_of_gpu=1
+        enable_metrics_api=true
+        disable_system_metrics=false
+        metrics_mode=prometheus

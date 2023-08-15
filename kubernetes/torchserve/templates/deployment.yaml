@@ -1,0 +1,40 @@
+# kubernetes deployment yaml for the torchserve application
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: torchserve
+  namespace: torchserve
+  labels:
+    app: torchserve
+    prometheus/should_be_scraped: "true"
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: torchserve
+    template:
+        metadata:
+            labels:
+                app: torchserve
+                prometheus/should_be_scraped: "true"
+        spec:
+            containers:
+              - name: torchserve
+                image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+                imagePullPolicy: Always
+                # imagePullPolicy: IfNotPresent
+                ports:
+                    - containerPort: 8080
+                    - containerPort: 8081
+                    - containerPort: 8082
+                env:
+                - name: TS_CONFIG_FILE
+                  value: "/home/model-server/config.properties"
+                volumeMounts:
+                    - name: config-properties
+                      mountPath: /home/model-server/config.properties
+                      subPath: config.properties
+            volumes:
+            - name: config-properties
+              configMap:
+                name: config-properties
