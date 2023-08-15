@@ -78,7 +78,7 @@ git clone https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentimen
 cd model_store
 
 # generate .mar model for nlptown_bert-base-multilingual-uncased-sentiment model
-torch-model-archiver --model-name "nlptown_bert-base-multilingual-uncased-sentiment" --version 1.0 \
+torch-model-archiver -f --model-name "nlptown_bert-base-multilingual-uncased-sentiment" --version 1.0 \
 --serialized-file ../source/bert-base-multilingual-uncased-sentiment/pytorch_model.bin \
 --extra-files "../source/bert-base-multilingual-uncased-sentiment/config.json,../source/bert-base-multilingual-uncased-sentiment/special_tokens_map.json,../source/bert-base-multilingual-uncased-sentiment/tokenizer_config.json,../source/bert-base-multilingual-uncased-sentiment/vocab.txt" \
 --handler "../handlers/transformers_classifier_torchserve_handler.py"
@@ -88,16 +88,30 @@ torch-model-archiver -f --model-name "SamLowe_roberta-base-go_emotions" --versio
 --serialized-file ../source/roberta-base-go_emotions/pytorch_model.bin \
 --extra-files "../source/roberta-base-go_emotions/config.json,../source/roberta-base-go_emotions/merges.txt,../source/roberta-base-go_emotions/special_tokens_map.json,../source/roberta-base-go_emotions/tokenizer_config.json,../source/roberta-base-go_emotions/tokenizer.json,../source/roberta-base-go_emotions/trainer_state.json,../source/roberta-base-go_emotions/vocab.json" \
 --handler "../handlers/transformers_classifier_torchserve_handler.py"
+
+# generate .mar model for facebook_detr-resnet-50
+torch-model-archiver -f --model-name "facebook_detr-resnet-50" --version 1.0 \
+--serialized-file ../source/detr-resnet-50/pytorch_model.bin \
+--extra-files "../source/detr-resnet-50/config.json,,../source/detr-resnet-50/preprocessor_config.json" \
+--handler "../handlers/transformers_classifier_torchserve_handler_object_detection.py"
+
 ```
 
 ## 3. Build container image
 ```
 # note: choose the FROM_IMAGE you prefer
-docker build -t my_torchserver:latest-gpu -f docker/Dockerfile --build-arg FROM_IMAGE=pytorch/torchserve:latest-gpu .
+
+cd docker
+# NOTE!!! In order to take the right latest patch of cuda base image, I had to edit build_image
+./build_image.sh -t my_base_torchserve:1.0-gpu --gpu --cudaversion cu116
+
+docker build -t my_custom_torchserve:latest-gpu -f docker/Dockerfile --build-arg FROM_IMAGE=pytorch/my_base_torchserve:1.0 .
 
 ```
 
 ## 4. Run TorchServe
+
+### docker compose
 ```
 # make sure that config.properties is as you expect
 
@@ -121,4 +135,12 @@ Tip: if you call inference/management service with OPTION method it will come ba
 curl --location 'http://127.0.0.1:8080/predictions/<modelName>' \
 --header 'Content-Type: text/plain' \
 --data 'Hi guys, how are you?'
+```
+
+### kubernetes
+```
+cd kubernetes
+
+# customize as you prefer the chart, than
+helm upgrade -i torchserve torchserve
 ```

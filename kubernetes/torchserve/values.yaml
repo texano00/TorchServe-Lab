@@ -3,7 +3,10 @@ service:
   port: 8080
 
 image:
-  repository: my_torchserver
+  # repository: my_torchserver
+  repository: testaixxx.azurecr.io/my_torchserver
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest-gpu
+  # tag: latest-gpu
+  tag: latest
+
