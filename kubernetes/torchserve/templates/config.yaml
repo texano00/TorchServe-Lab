@@ -23,8 +23,8 @@ data:
         management_address=http://0.0.0.0:8081
         metrics_address=http://0.0.0.0:8082
         # load_models=all
-        load_models=facebook_detr-resnet-50.mar
-        number_of_gpu=0
+        load_models=SamLowe_roberta-base-go_emotions.mar
+        number_of_gpu=1
         enable_metrics_api=true
         disable_system_metrics=false
         metrics_mode=prometheus
