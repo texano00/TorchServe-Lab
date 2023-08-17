@@ -18,7 +18,7 @@ First of all, from the official TorchServe they declare that TorchServe is produ
 # Tests
 
 ## Kubernetes
-See Jmeter/result/aks
+See [JMeter/results/aks](https://github.com/texano00/TorchServe-Lab/tree/main/JMeter/results/aks)
 
 ## Local development
 Even if could not give an interesting contribution for running inference at scale, this was my starting point.\
